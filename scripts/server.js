@@ -143,13 +143,16 @@ const server = http.createServer(async (req, res) => {
           }
           
           const line = lines[lineIndex];
-          const match = line.match(/^(- \[)([ x~])(\].*)$/);
+          // 匹配任务行：- [状态] 内容
+          const match = line.match(/^(- \[[ x~]\])(.+)$/);
           if (!match) {
-            return res.end(JSON.stringify({ success: false, error: 'Not a task line' }));
+            return res.end(JSON.stringify({ success: false, error: '非任务行: ' + line.slice(0, 30) }));
           }
           
           if (newStatus) {
-            lines[lineIndex] = line.replace(/^(- \[)([ x~])(\].*)$/, `$1${newStatus}$3`);
+            // 提取当前状态字符并替换
+            const statusChar = line.match(/^(- \[)([ x~])(\])/)[2];
+            lines[lineIndex] = `- [${newStatus}]` + line.slice(line.indexOf(']') + 1);
           }
           if (newContent !== undefined) {
             if (newContent === '') {
@@ -157,9 +160,8 @@ const server = http.createServer(async (req, res) => {
               lines[lineIndex] = '';
             } else {
               // 提取当前状态字符
-              const statusMatch = line.match(/^(- \[)([ x~])(\].*)$/);
-              const status = statusMatch ? statusMatch[2] : ' ';
-              lines[lineIndex] = `- [${status}] ${newContent}`;
+              const statusChar = line.match(/^(- \[)([ x~])(\])/)[2];
+              lines[lineIndex] = `- [${statusChar}] ${newContent}`;
             }
           }
           
