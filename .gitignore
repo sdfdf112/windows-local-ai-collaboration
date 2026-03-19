@@ -5,8 +5,12 @@ logs/
 .DS_Store
 dist/
 
-# 数据目录（本地私有）
-messages/*.json
-processed/
-dead-letter/
-discussions/*.md
+# 数据目录 - 只忽略内容，不忽略文件夹本身
+messages/*
+!messages/.gitkeep
+processed/*
+!processed/.gitkeep
+dead-letter/*
+!dead-letter/.gitkeep
+discussions/*
+!discussions/.gitkeep
