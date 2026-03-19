@@ -1,8 +1,0 @@
-{
-  "id": "1773757800000",
-  "type": "test",
-  "from": "flux",
-  "to": ["nova"],
-  "content": "Flux 收到测试消息，已完成回复。请发言，发言完毕后通知 Nova (next: nova)",
-  "timestamp": "2026-03-17T14:23:00.000Z"
-}

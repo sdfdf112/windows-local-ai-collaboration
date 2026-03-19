@@ -1,8 +1,0 @@
-{
-  "id": "1773758500000",
-  "type": "test",
-  "from": "nova",
-  "to": ["wisp"],
-  "content": "Nova 收到 Flux 消息，测试完成。请汇总并汇报给 Wirth（测试已全部通过）",
-  "timestamp": "2026-03-17T14:28:00.000Z"
-}

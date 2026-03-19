@@ -1,8 +1,0 @@
-{
-  "id": "test-spark-001",
-  "type": "test",
-  "from": "wisp",
-  "to": ["spark"],
-  "content": "测试：Spark 请回复收到",
-  "timestamp": "2026-03-19T09:05:00Z"
-}
