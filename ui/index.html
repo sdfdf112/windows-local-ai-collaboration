@@ -117,7 +117,7 @@
         tasksData = [];
         lines.forEach(function(l,i){
           var m = l.match(/^-\s*\[([ x~])\]\s*(.+?)(?:\s*负责人:\s*(\w+))?(?:\s*优先级:\s*(\w+))?$/);
-          if(m) tasksData.push({done:m[1]==='x',inProgress:m[1]==='~',title:m[2].trim(),owner:m[3],priority:m[4],lineIndex:i,raw:l});
+          if(m) tasksData.push({done:m[1]==='x',inProgress:m[1]==='~',title:m[2].trim(),owner:m[3],priority:m[4],lineIndex:tasksData.length,raw:l});
         });
         
         var html = '';

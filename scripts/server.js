@@ -141,10 +141,8 @@ const server = http.createServer(async (req, res) => {
       let body = '';
       req.on('data', chunk => body += chunk);
       req.on('end', () => {
-        console.log('[TASK API] received body:', body);
         try {
           const { lineIndex, newContent, newStatus } = JSON.parse(body);
-          console.log('[TASK API] lineIndex:', lineIndex, 'newContent:', newContent, 'newStatus:', newStatus);
           const p = path.join(CONFIG.msgDir, '..', 'tasks.md');
           if (!fs.existsSync(p)) {
             res.writeHead(200, {'Content-Type': 'application/json'});
@@ -160,7 +158,6 @@ const server = http.createServer(async (req, res) => {
               taskLineIndexes.push(idx);
             }
           });
-          console.log('[TASK API] taskLineIndexes:', taskLineIndexes);
           
           // 用前端传来的 lineIndex 找到真实行号
           if (lineIndex < 0 || lineIndex >= taskLineIndexes.length) {
