@@ -128,12 +128,71 @@ const server = http.createServer(async (req, res) => {
       return res.end(JSON.stringify(data));
     }
 
-    // 任务 API
+    // 任务 API（读取）
     if (url === '/api/tasks') {
       const p = path.join(CONFIG.msgDir, '..', 'tasks.md');
       const content = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '';
       res.writeHead(200, {'Content-Type': 'application/json'});
       return res.end(JSON.stringify({ content }));
+    }
+
+    // 任务 API（修改）
+    if (method === 'POST' && url === '/api/task') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const { lineIndex, newContent, newStatus } = JSON.parse(body);
+          const p = path.join(CONFIG.msgDir, '..', 'tasks.md');
+          if (!fs.existsSync(p)) {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            return res.end(JSON.stringify({ success: false, error: 'tasks.md not found' }));
+          }
+          
+          const allLines = fs.readFileSync(p, 'utf8').split('\n');
+          
+          // 找出所有任务行的真实行号
+          const taskLineIndexes = [];
+          allLines.forEach((line, idx) => {
+            if (line.match(/^-\s*\[[ x~]\]/)) {
+              taskLineIndexes.push(idx);
+            }
+          });
+          
+          // 用前端传来的 lineIndex 找到真实行号
+          if (lineIndex < 0 || lineIndex >= taskLineIndexes.length) {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            return res.end(JSON.stringify({ success: false, error: 'Invalid task index' }));
+          }
+          
+          const realLineIndex = taskLineIndexes[lineIndex];
+          const line = allLines[realLineIndex];
+          
+          // 根据请求修改行
+          if (newStatus !== undefined) {
+            // 切换状态
+            allLines[realLineIndex] = line.replace(/^(- \[)[ x~](\])/, '$1' + newStatus + '$2');
+          }
+          
+          if (newContent !== undefined) {
+            if (newContent === '') {
+              // 删除任务
+              allLines[realLineIndex] = '';
+            } else {
+              // 修改内容
+              allLines[realLineIndex] = line.replace(/^(- \[[ x~]\]\s*).*/, '$1' + newContent);
+            }
+          }
+          
+          fs.writeFileSync(p, allLines.filter(l => l !== '').join('\n'));
+          res.writeHead(200, {'Content-Type': 'application/json'});
+          res.end(JSON.stringify({ success: true }));
+        } catch (e) {
+          res.writeHead(200, {'Content-Type': 'application/json'});
+          res.end(JSON.stringify({ success: false, error: e.message }));
+        }
+      });
+      return;
     }
 
     // 讨论 API
