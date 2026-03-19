@@ -128,15 +128,56 @@
           if(t.done) badges += '<span class="badge badge-ok">✓ 已完成</span>';
           else if(t.inProgress) badges += '<span class="badge badge-wait">进行中</span>';
           var statusIcon = t.done?'✅':(t.inProgress?'⏳':'⬜');
-          html += '<div class="card">' +
+          html += '<div class="card" id="task-'+i+'">' +
             '<div style="display:flex;align-items:center;gap:8px">' +
-            '<span style="cursor:pointer" onclick="toggleTask('+i+')">'+statusIcon+'</span>' +
-            '<span onclick="viewTask('+i+')" style="cursor:pointer;flex:1;'+(t.done?'text-decoration:line-through;color:#94a3b8':'')+'">'+escape(t.title)+'</span>' +
-            '<button class="btn-blue" style="padding:4px 8px;font-size:0.8rem" onclick="editTask('+i+')">✏️</button></div>' +
+            '<span style="cursor:pointer;font-size:1.2rem" onclick="toggleTask('+i+')">'+statusIcon+'</span>' +
+            '<span class="task-title" id="task-title-'+i+'" onclick="startEditTask('+i+')" style="cursor:text;flex:1;'+(t.done?'text-decoration:line-through;color:#94a3b8':'')+'">'+escape(t.title)+'</span>' +
+            '<input type="text" id="task-input-'+i+'" class="task-input" style="display:none;flex:1;padding:4px;border:1px solid #3b82f6;border-radius:4px" />' +
+            '<button class="btn-blue" style="padding:4px 8px;font-size:0.8rem" onclick="startEditTask('+i+')">修改</button>' +
+            '<button class="btn-red" style="padding:4px 8px;font-size:0.8rem" onclick="removeTask('+i+')">移除</button></div>' +
             '<div style="margin-top:4px">'+badges+'</div></div>';
         });
         document.getElementById('taskList').innerHTML = html || '无任务';
       });
+    }
+    function startEditTask(idx) {
+      var t = tasksData[idx];
+      if(!t) return;
+      var titleEl = document.getElementById('task-title-'+idx);
+      var inputEl = document.getElementById('task-input-'+idx);
+      if(inputEl.style.display === 'none') {
+        // 切换到编辑模式
+        titleEl.style.display = 'none';
+        inputEl.style.display = 'block';
+        inputEl.value = t.title;
+        inputEl.focus();
+        inputEl.onkeydown = function(e) {
+          if(e.key === 'Enter') saveEditTask(idx);
+          if(e.key === 'Escape') cancelEditTask(idx);
+        };
+        inputEl.onblur = function() { saveEditTask(idx); };
+      } else {
+        saveEditTask(idx);
+      }
+    }
+    function saveEditTask(idx) {
+      var t = tasksData[idx];
+      var inputEl = document.getElementById('task-input-'+idx);
+      var newContent = inputEl.value.trim();
+      if(newContent && newContent !== t.title) {
+        fetch('/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lineIndex:t.lineIndex,newContent:newContent})}).then(function(r){return r.json()}).then(function(d){
+          if(d.success) loadTasks();
+          else alert('失败: '+d.error);
+        });
+      } else {
+        cancelEditTask(idx);
+      }
+    }
+    function cancelEditTask(idx) {
+      var titleEl = document.getElementById('task-title-'+idx);
+      var inputEl = document.getElementById('task-input-'+idx);
+      titleEl.style.display = '';
+      inputEl.style.display = 'none';
     }
     function toggleTask(idx) {
       var t = tasksData[idx];
@@ -147,16 +188,14 @@
         else alert('失败: '+d.error);
       });
     }
-    function editTask(idx) {
+    function removeTask(idx) {
       var t = tasksData[idx];
       if(!t) return;
-      var newContent = prompt('修改任务内容:', t.title);
-      if(newContent && newContent !== t.title) {
-        fetch('/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lineIndex:t.lineIndex,newContent:newContent})}).then(function(r){return r.json()}).then(function(d){
-          if(d.success) loadTasks();
-          else alert('失败: '+d.error);
-        });
-      }
+      if(!confirm('确定移除任务: '+t.title+'?')) return;
+      fetch('/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lineIndex:t.lineIndex,newContent:''})}).then(function(r){return r.json()}).then(function(d){
+        if(d.success) loadTasks();
+        else alert('失败: '+d.error);
+      });
     }
     function viewTask(idx) {
       var t = tasksData[idx];

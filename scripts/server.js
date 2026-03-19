@@ -151,11 +151,16 @@ const server = http.createServer(async (req, res) => {
           if (newStatus) {
             lines[lineIndex] = line.replace(/^(- \[)([ x~])(\].*)$/, `$1${newStatus}$3`);
           }
-          if (newContent) {
-            lines[lineIndex] = line.replace(/^(- \[[ x~]\])(.*)$/, `$1 ${newContent}`);
+          if (newContent !== undefined) {
+            if (newContent === '') {
+              // 删除任务（清空行）
+              lines[lineIndex] = '';
+            } else {
+              lines[lineIndex] = line.replace(/^(- \[[ x~]\]).*$/, `$1 ${newContent}`);
+            }
           }
           
-          fs.writeFileSync(p, lines.join('\n'));
+          fs.writeFileSync(p, lines.filter(l => l !== '').join('\n'));
           res.writeHead(200, {'Content-Type': 'application/json'});
           res.end(JSON.stringify({ success: true }));
         } catch (e) {
