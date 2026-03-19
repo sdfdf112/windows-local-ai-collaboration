@@ -1,0 +1,8 @@
+{
+  "id": "1773757750000",
+  "type": "test",
+  "from": "pulse",
+  "to": ["flux"],
+  "content": "Pulse 收到测试消息，已完成回复，请继续通知 Flux (next: flux)",
+  "timestamp": "2026-03-17T14:22:20.000Z"
+}

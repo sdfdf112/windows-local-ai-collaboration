@@ -1,0 +1,7 @@
+{
+  "id": "1773756941000",
+  "from": "spark",
+  "to": ["cipher"],
+  "content": "Spark 收到测试消息，已完成回复，请继续通知 Cipher (next: cipher)",
+  "timestamp": "2026-03-17T14:09:01.000Z"
+}

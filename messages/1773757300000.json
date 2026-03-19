@@ -1,0 +1,8 @@
+{
+  "id": "1773757300000",
+  "type": "task",
+  "from": "nexus",
+  "to": ["pulse"],
+  "content": "Nexus 收到测试消息，已完成回复。请发言，发言完毕后通知 Flux (next: flux)",
+  "timestamp": "2026-03-17T14:15:00.000Z"
+}

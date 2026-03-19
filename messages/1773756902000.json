@@ -1,0 +1,8 @@
+{
+  "id": "1773756902000",
+  "type": "test",
+  "from": "cipher",
+  "to": ["nexus"],
+  "content": "Cipher 收到测试消息，已完成回复，请继续通知 Nexus (next: nexus)",
+  "timestamp": "2026-03-17T14:08:22.000Z"
+}
