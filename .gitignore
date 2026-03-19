@@ -15,5 +15,9 @@ dead-letter/*
 discussions/*
 !discussions/.gitkeep
 
+# 本地配置文件（忽略实际版本，保留示例）
+scripts/config.js
+!scripts/config.sample.js
+
 # 旧项目文件（本地保留）
 deprecated/
