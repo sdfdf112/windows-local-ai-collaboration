@@ -14,3 +14,6 @@ dead-letter/*
 !dead-letter/.gitkeep
 discussions/*
 !discussions/.gitkeep
+
+# 旧项目文件（本地保留）
+deprecated/
