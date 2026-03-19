@@ -107,7 +107,14 @@ const server = http.createServer(async (req, res) => {
       console.log('[DEBUG] msgDir:', CONFIG.msgDir);
       const files = fs.readdirSync(CONFIG.msgDir).filter(f => f.endsWith('.json') && f !== 'counter.json').sort().slice(-20).reverse();
       console.log('[DEBUG] files count:', files.length);
-      const data = files.map(f => JSON.parse(fs.readFileSync(path.join(CONFIG.msgDir, f), 'utf8')));
+      let data;
+      try {
+        data = files.map(f => JSON.parse(fs.readFileSync(path.join(CONFIG.msgDir, f), 'utf8')));
+        console.log('[DEBUG] data parsed count:', data.length);
+      } catch(e) {
+        console.log('[DEBUG] parse error:', e.message);
+        data = [];
+      }
       
       // 获取已处理消息状态
       const processedStatus = {};
