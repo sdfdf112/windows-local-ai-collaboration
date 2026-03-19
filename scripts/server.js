@@ -90,10 +90,23 @@ const server = http.createServer(async (req, res) => {
     return res.end(HTML);
   }
 
+  // 调试 API
+  if (url === '/api/debug') {
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    return res.end(JSON.stringify({
+      msgDir: CONFIG.msgDir,
+      msgDirExists: fs.existsSync(CONFIG.msgDir),
+      msgFiles: fs.existsSync(CONFIG.msgDir) ? fs.readdirSync(CONFIG.msgDir).filter(f => f.endsWith('.json')).length : 0
+    }));
+  }
+
   try {
     // 消息列表 API
     if (url === '/api/messages') {
+      console.log('[DEBUG] /api/messages called');
+      console.log('[DEBUG] msgDir:', CONFIG.msgDir);
       const files = fs.readdirSync(CONFIG.msgDir).filter(f => f.endsWith('.json') && f !== 'counter.json').sort().slice(-20).reverse();
+      console.log('[DEBUG] files count:', files.length);
       const data = files.map(f => JSON.parse(fs.readFileSync(path.join(CONFIG.msgDir, f), 'utf8')));
       
       // 获取已处理消息状态
