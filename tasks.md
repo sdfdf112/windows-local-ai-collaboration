@@ -8,7 +8,6 @@
 - [x] 多 AI 支持（Wisp/Spark/Cipher/Nexus/Pulse/Flux/Nova）
 - [x] 前后端分离（server.js + ui/index.html）111
 ### 待完成
-- [ ] 讨论功能 - 新建讨论时通知所有在线 AI 开会
 ### 测试中
 ---
 ## 状态说明
