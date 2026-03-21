@@ -220,40 +220,44 @@
         var isNew = data.length !== lastMsgCount && lastMsgCount > 0;
         lastMsgCount = data.length;
         msgs = data;
-        // 先反转：从旧到新遍历，遇到新日期时分隔线自然在它之前
-        var reversed = [].concat(data).reverse();
-        var html = '';
-        var prevDate = null;
-        reversed.forEach(function(m){
+        // 按日期分组，同一日期的消息归为一组
+        var groups = [];
+        var currentGroup = null;
+        data.forEach(function(m){
           var curDate = formatDate(m.timestamp);
-          if (curDate !== prevDate) {
-            html += '<div class="date-separator"><span>' + curDate + '</span></div>';
-            prevDate = curDate;
+          if (!currentGroup || currentGroup.date !== curDate) {
+            if (currentGroup) groups.push(currentGroup);
+            currentGroup = { date: curDate, messages: [] };
           }
-          var processed = m.processedBy||[];
-          var failed = m.failedBy||[];
-          var statusClass = 'pending';
-          var statusText = '⏳ 待处理';
-          if (processed.length > 0) { statusClass = 'ok'; statusText = '✓ 已处理'; }
-          else if (failed.length > 0) { statusClass = 'fail'; statusText = '✗ 失败'; }
-          var toLine = (m.to&&m.to.length) ? ' → <span class="chat-to">' + m.to.join(', ') + '</span>' : '';
-          html += '<div class="chat-bubble" onclick="viewMsg(\''+m.id+'\')">' +
-            '<img class="chat-avatar" src="'+escape(getAvatar(m.from))+'" onerror="this.className=\'chat-avatar placeholder\';this.src=\''+DEFAULT_AVATAR+'\'" alt="">' +
-            '<div class="chat-body">' +
-              '<div class="chat-header">' +
-                '<span><span class="chat-name">'+escape(getAIDisplayName(m.from))+'</span>'+toLine+'</span>' +
-                '<span class="chat-time">'+formatTime(m.timestamp)+'</span>' +
-              '</div>' +
-              '<div class="chat-content">'+escape(m.content)+'</div>' +
-              '<div class="chat-meta"><span class="status-dot '+statusClass+'"></span>'+statusText+'</div>' +
-            '</div>' +
-          '</div>';
+          currentGroup.messages.push(m);
         });
-        // 反转回正确顺序，同时保持每组内分隔线在日期消息之前
-        var lines = html.split('</div>');
-        lines.reverse();
-        document.getElementById('messageList').innerHTML = (lines.join('</div>')) || '<div style="text-align:center;color:#94a3b8;padding:2rem">暂无消息</div>';
-        // 只有新消息来了才自动滚动，周期性刷新不滚动
+        if (currentGroup) groups.push(currentGroup);
+        // 构建 HTML：每组先加分隔线，再加该组所有消息
+        var html = '';
+        groups.forEach(function(g){
+          html += '<div class="date-separator"><span>' + g.date + '</span></div>';
+          g.messages.forEach(function(m){
+            var processed = m.processedBy||[];
+            var failed = m.failedBy||[];
+            var statusClass = 'pending';
+            var statusText = '⏳ 待处理';
+            if (processed.length > 0) { statusClass = 'ok'; statusText = '✓ 已处理'; }
+            else if (failed.length > 0) { statusClass = 'fail'; statusText = '✗ 失败'; }
+            var toLine = (m.to&&m.to.length) ? ' → <span class="chat-to">' + m.to.join(', ') + '</span>' : '';
+            html += '<div class="chat-bubble" onclick="viewMsg(\''+m.id+'\')">' +
+              '<img class="chat-avatar" src="'+escape(getAvatar(m.from))+'" onerror="this.className=\'chat-avatar placeholder\';this.src=\''+DEFAULT_AVATAR+'\'" alt="">' +
+              '<div class="chat-body">' +
+                '<div class="chat-header">' +
+                  '<span><span class="chat-name">'+escape(getAIDisplayName(m.from))+'</span>'+toLine+'</span>' +
+                  '<span class="chat-time">'+formatTime(m.timestamp)+'</span>' +
+                '</div>' +
+                '<div class="chat-content">'+escape(m.content)+'</div>' +
+                '<div class="chat-meta"><span class="status-dot '+statusClass+'"></span>'+statusText+'</div>' +
+              '</div>' +
+            '</div>';
+          });
+        });
+        document.getElementById('messageList').innerHTML = html || '<div style="text-align:center;color:#94a3b8;padding:2rem">暂无消息</div>';
         if (isNew) scrollToBottom(false);
       });
     }

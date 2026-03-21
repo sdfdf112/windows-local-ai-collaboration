@@ -257,11 +257,12 @@ const processingFiles = new Set();
 
 async function wakeAgent(name, config, msg, msgId) {
   // 保留换行，但把换行转为行号格式发给 AI，确保多行内容可读
+  // 注意：PowerShell 命令行里不能有裸换行符，先替换成空格，发出去后再恢复
   const contentLines = msg.content.split('\n');
   const formattedContent = contentLines.length > 1
-    ? contentLines.map((l, i) => `${i + 1}. ${l}`).join('\n')
+    ? contentLines.map((l, i) => `${i + 1}. ${l}`).join(' | ')
     : msg.content;
-  const task = '【新任务】来自 ' + msg.from + ':\n' + formattedContent;
+  const task = '【新任务】来自 ' + msg.from + ': ' + formattedContent;
   const processedBy = msg.processedBy || [];
   if (processedBy.includes(name)) return;
   
